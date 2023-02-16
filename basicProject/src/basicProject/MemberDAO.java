@@ -24,6 +24,7 @@ public class MemberDAO {
 	private Connection connection = null;
 	private Statement statement = null;
 	private ResultSet resultSet = null;
+	private PreparedStatement pstmt =null;
 	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
 
 	public List<MemberVO> searchMembers(String selectId) {
@@ -43,8 +44,7 @@ public class MemberDAO {
 				sb.append(" WHERE");
 				sb.append("     mem_id =?");
 				String sql = sb.toString();
-
-				PreparedStatement pstmt = connection.prepareStatement(sql);
+				pstmt = connection.prepareStatement(sql);
 				pstmt.setString(1, selectId);
 				resultSet = pstmt.executeQuery();
 			} else {
@@ -92,6 +92,9 @@ public class MemberDAO {
 			if (statement != null) {
 				statement.close();
 			}
+			if (pstmt != null) {
+				pstmt.close();
+			}
 			if (connection != null) {
 				connection.close();
 			}
@@ -119,7 +122,7 @@ public class MemberDAO {
 			sb.append("         ?");
 			sb.append("     )");
 			String sql = sb.toString();
-			PreparedStatement pstmt = connection.prepareStatement(sql);
+			pstmt = connection.prepareStatement(sql);
 			pstmt.setString(1, vo.getMemId());
 			pstmt.setString(2, vo.getMemPw());
 			pstmt.setString(3, vo.getMemName());
@@ -151,7 +154,7 @@ public class MemberDAO {
 			sb.append("     mem_id =?");
 			sb.append("     AND   mem_pw =?");
 			String sql = sb.toString();
-			PreparedStatement pstmt = connection.prepareStatement(sql);
+			pstmt = connection.prepareStatement(sql);
 			pstmt.setString(1, vo.getMemId());
 			pstmt.setString(2, vo.getMemPw());
 			count = pstmt.executeUpdate();
@@ -164,7 +167,6 @@ public class MemberDAO {
 	}
 
 	public int checkId(String id) {
-		PreparedStatement pstmt = null;
 		int value = 0;
 
 		try {
@@ -198,7 +200,7 @@ public class MemberDAO {
 			sb.append(" WHERE");
 			sb.append("     mem_id =?");
 			String sql = sb.toString();
-			PreparedStatement pstmt = connection.prepareStatement(sql);
+			pstmt = connection.prepareStatement(sql);
 			pstmt.setString(1, memId);
 			resultSet = pstmt.executeQuery();
 			while (resultSet.next()) {
@@ -215,5 +217,49 @@ public class MemberDAO {
 			dbClose();
 		}
 		return vo;
+	}
+
+	public int deleteMyInfo(String memId) {
+		int count = 0;
+		try {
+			getConnection();
+			StringBuilder builder = new StringBuilder();
+			builder.append("DELETE FROM member WHERE ");
+			builder.append("    mem_id =? ");
+			String sql = builder.toString();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, memId);
+			count = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			dbClose();
+		}
+		return count;
+	}
+
+	public int updateMyInfo(MemberVO vo) {
+		int count = 0;
+		try {
+			getConnection();
+			StringBuilder builder = new StringBuilder();
+			builder.append("UPDATE member ");
+			builder.append("    SET ");
+			builder.append("        mem_pw =?, ");
+			builder.append("        mem_ph =? ");
+			builder.append("WHERE ");
+			builder.append("    mem_id =? ");
+			String sql = builder.toString();
+			pstmt = connection.prepareStatement(sql);
+			pstmt.setString(1, vo.getMemPw());
+			pstmt.setString(2, vo.getMemPh());
+			pstmt.setString(3, vo.getMemId());
+			count = pstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			dbClose();
+		}
+		return count;
 	}
 }

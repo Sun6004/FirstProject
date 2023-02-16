@@ -1,5 +1,7 @@
 package basicProject;
 
+import java.text.NumberFormat;
+
 public class ReservationVO {
 	private String rNo; //예약 번호
 	private String rDate; // 예약날짜
@@ -11,6 +13,7 @@ public class ReservationVO {
 	private String position;
 	private String menuNo;
 	private int price; // 가격
+	NumberFormat nf = NumberFormat.getInstance();
 	public String getMenuNo() {
 		return menuNo;
 	}
@@ -45,7 +48,7 @@ public class ReservationVO {
 	
 
 	public ReservationVO(String rDate, String memId, String dsiNo, String menuNo) {
-		this.rDate = rDate;
+		this.rDate = rDate.replaceAll("^(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})$", "$1-$2-$3 $4:$5");
 		this.memId = memId;
 		this.dsiNo = dsiNo;
 		this.menuNo = menuNo;
@@ -54,7 +57,7 @@ public class ReservationVO {
 
 	public ReservationVO(String rNo, String rDate, String memName, String dsiName, String menuName, int price) {
 		this.rNo = rNo;
-		this.rDate = rDate;
+		this.rDate = rDate.replaceAll("^(\\d{4})(\\d{2})(\\d{2})(\\d{2})(\\d{2})$", "$1-$2-$3 $4:$5");
 		this.memName = memName;
 		this.dsiName = dsiName;
 		this.menuName = menuName;
@@ -134,8 +137,8 @@ public class ReservationVO {
 	}
 
 
-	public int getPrice() {
-		return price;
+	public String getPrice() {
+		return nf.format(price);
 	}
 
 
@@ -156,8 +159,8 @@ public class ReservationVO {
 
 
 	@Override
-	   public String toString() {
-	      return String.format("%s\t%s\t%s\t%s\t%s\t%d", rNo, rDate, memName, menuName, dsiName, price);
-	   }
+	public String toString() {
+		return String.format(" %s    %s    %s    %s    %7s    %s", rNo, rDate, memName, dsiName, nf.format(price), menuName);
+	}
 
 }

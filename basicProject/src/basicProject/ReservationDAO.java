@@ -101,6 +101,7 @@ public class ReservationDAO {
 		}
 		return vo;
 	}
+
 	public List<ReservationVO> menu1() {
 		List<ReservationVO> list = new ArrayList<>();
 		try {
@@ -114,48 +115,52 @@ public class ReservationDAO {
 			sb.append(" FROM");
 			sb.append("     DESIGNER");
 			String sql = sb.toString();
-			rs =  st.executeQuery(sql);
+			rs = st.executeQuery(sql);
 			while (rs.next()) {
 				String no = rs.getString("dsi_no");
 				String name = rs.getString("dsi_name");
 				String position = rs.getString("dsi_posi");
-				list.add(new ReservationVO(no,name, position));
+				list.add(new ReservationVO(no, name, position));
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
-		}finally {
+		} finally {
 			dbClose();
 		}
 		return list;
 	}
 
-	public List<ReservationVO> menu2() {
+	public List<ReservationVO> menu2(String designerName) {
 		List<ReservationVO> list = new ArrayList<>();
 		try {
 			dbConnect();
-			st = conn.createStatement();
 			StringBuilder sb = new StringBuilder();
 			sb.append(" SELECT");
 			sb.append("     menu_no,");
 			sb.append("     menu_name,");
 			sb.append("     price");
 			sb.append(" FROM");
-			sb.append("     v_price");
+			sb.append("     v_designer_menu");
+			sb.append(" WHERE");
+			sb.append("     dsi_name =?");
 			String sql = sb.toString();
-			rs =  st.executeQuery(sql);
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, designerName);
+			rs = pstmt.executeQuery();
 			while (rs.next()) {
 				String menuNo = rs.getString("menu_no");
-				String menuName = rs.getString("menu_name"); 
-				int price = rs.getInt("price"); 
-				list.add(new ReservationVO(menuName,menuNo,price));
+				String menuName = rs.getString("menu_name");
+				int price = rs.getInt("price");
+				list.add(new ReservationVO(menuName, menuNo, price));
 			}
 		} catch (Exception e) {
 			// TODO: handle exception
-		}finally {
+		} finally {
 			dbClose();
 		}
 		return list;
 	}
+
 	public int duplicateInspection(ReservationVO vo) {
 		int count = 0;
 		try {
@@ -169,91 +174,92 @@ public class ReservationDAO {
 			sb.append("     rdate =?");
 			sb.append("     AND   dsi_no =?");
 			String sql = sb.toString();
-			pstmt=conn.prepareStatement(sql);
+			pstmt = conn.prepareStatement(sql);
 			pstmt.setString(1, vo.getrDate().trim());
 			pstmt.setString(2, vo.getDsiNo().trim());
 			count = pstmt.executeUpdate();
 		} catch (Exception e) {
 			// TODO: handle exception
-		}finally {
-			dbClose();	
-		}
-		return count;
-	}
-	
-	public int reservation(ReservationVO vo) {
-		int count = 0;
-		try {
-			dbConnect();
-			cstmt = conn.prepareCall("{call proc_reservation(?,?,?,?)}");			
-			cstmt.setString(1,vo.getrDate().trim());
-			cstmt.setString(2,vo.getMemId().trim());
-			cstmt.setString(3,vo.getDsiNo().trim());
-			cstmt.setString(4,vo.getMenuNo().trim());
-			count = cstmt.executeUpdate();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}finally {
+		} finally {
 			dbClose();
 		}
 		return count;
 	}
-	public ReservationVO reservationInfo(String memID) {
-	      ReservationVO vo = null;
-	      try {
-	         dbConnect();
-	         StringBuilder builder = new StringBuilder();
-	         builder.append("SELECT ");
-	         builder.append("    rno, ");
-	         builder.append("    rdate, ");
-	         builder.append("    mem_name, ");
-	         builder.append("    dsi_name, ");
-	         builder.append("    menu_name, ");
-	         builder.append("    price ");
-	         builder.append("FROM ");
-	         builder.append("    v_reservation ");
-	         builder.append("WHERE ");
-	         builder.append("    mid =? ");
-	         String sql = builder.toString();
-	         pstmt = conn.prepareStatement(sql);
-	         pstmt.setString(1, memID);
-	         ResultSet resultSet2 = pstmt.executeQuery();
-	         while(resultSet2.next()) {
-	            String rNo1 = resultSet2.getString("rno");
-	            String rDate = resultSet2.getString("rdate");
-	            String memName = resultSet2.getString("mem_name");
-	            String dsiName = resultSet2.getString("dsi_name");
-	            String menuName = resultSet2.getString("menu_name");
-	            int price = resultSet2.getInt("price");
-	            vo = new ReservationVO(rNo1, rDate, memName, dsiName, menuName, price);
-	         }
-	      } catch (Exception e) {
-	         e.printStackTrace();
-	      } finally {
-	         dbClose();
-	      }
-	      return vo;
-	   }
-	   
-	   public int resrvationCancle(String memID){
-	      int count = 0;
-	      try {
-	         dbConnect();
-	         StringBuilder builder = new StringBuilder();
-	         builder.append("DELETE FROM reservation WHERE ");
-	         builder.append("    mem_id = ? ");
-	         String sql = builder.toString();
-	         PreparedStatement statement2 = conn.prepareStatement(sql);
-	         statement2.setString(1, memID);
-	         count = statement2.executeUpdate();
-	      } catch (Exception e) {
-	         e.printStackTrace();
-	      } finally {
-	         dbClose();
-	      }
-	      
-	      return count;
-	   }
+
+	public int reservation(ReservationVO vo) {
+		int count = 0;
+		try {
+			dbConnect();
+			cstmt = conn.prepareCall("{call proc_reservation(?,?,?,?)}");
+			cstmt.setString(1, vo.getrDate().trim());
+			cstmt.setString(2, vo.getMemId().trim());
+			cstmt.setString(3, vo.getDsiNo().trim());
+			cstmt.setString(4, vo.getMenuNo().trim());
+			count = cstmt.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			dbClose();
+		}
+		return count;
+	}
+
+	public List<ReservationVO> reservationInfo(String memID) {
+		List<ReservationVO> list = new ArrayList<>();
+		try {
+			dbConnect();
+			StringBuilder builder = new StringBuilder();
+			builder.append("SELECT ");
+			builder.append("    rno, ");
+			builder.append("    rdate, ");
+			builder.append("    mem_name, ");
+			builder.append("    dsi_name, ");
+			builder.append("    menu_name, ");
+			builder.append("    price ");
+			builder.append("FROM ");
+			builder.append("    v_reservation ");
+			builder.append("WHERE ");
+			builder.append("    mid =? ");
+			String sql = builder.toString();
+			pstmt = conn.prepareStatement(sql);
+			pstmt.setString(1, memID);
+			ResultSet resultSet2 = pstmt.executeQuery();
+			while (resultSet2.next()) {
+				String rNo1 = resultSet2.getString("rno");
+				String rDate = resultSet2.getString("rdate");
+				String memName = resultSet2.getString("mem_name");
+				String dsiName = resultSet2.getString("dsi_name");
+				String menuName = resultSet2.getString("menu_name");
+				int price = resultSet2.getInt("price");
+				list.add(new ReservationVO(rNo1, rDate, memName, dsiName, menuName, price));
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			dbClose();
+		}
+		return list;
+	}
+
+	public int resrvationCancle(String rNo) {
+		int count = 0;
+		try {
+			dbConnect();
+			StringBuilder builder = new StringBuilder();
+			builder.append("DELETE FROM reservation WHERE ");
+			builder.append("    r_no = ? ");
+			String sql = builder.toString();
+			PreparedStatement statement2 = conn.prepareStatement(sql);
+			statement2.setString(1, rNo);
+			count = statement2.executeUpdate();
+		} catch (Exception e) {
+			e.printStackTrace();
+		} finally {
+			dbClose();
+		}
+
+		return count;
+	}
 
 	private void dbConnect() throws ClassNotFoundException, SQLException {
 		String url = "jdbc:oracle:thin:@192.168.146.76:1521:XE";
@@ -284,7 +290,5 @@ public class ReservationDAO {
 			e.printStackTrace();
 		}
 	}
-
-
 
 }

@@ -1,7 +1,5 @@
 package basicProject;
 
-import java.util.List;
-
 public class MemberService {
 	private static MemberService instance = new MemberService();
 
@@ -28,5 +26,17 @@ public class MemberService {
 
 	public int checkId(String id) {
 		return dao.checkId(id);
+	}
+
+	public int deleteMyInfo(String memID,String yesOrNo) {
+		if (yesOrNo.equals("y") || yesOrNo.equals("Y")) {
+			return dao.deleteMyInfo(memID);
+		}else {
+			return -1;
+		}
+	}
+
+	public int updateMyInfo(MemberVO vo) {
+		return dao.updateMyInfo(vo);
 	}
 }

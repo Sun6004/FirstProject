@@ -20,8 +20,8 @@ public class ReservationService {
 	public List<ReservationVO> menu1() {
 		return dao.menu1();
 	}
-	public List<ReservationVO> menu2() {
-		return dao.menu2();
+	public List<ReservationVO> menu2(String designerName) {
+		return dao.menu2(designerName);
 	}
 	public int reservation(ReservationVO vo) {
 		if(dao.duplicateInspection(vo)>0) {
@@ -30,12 +30,17 @@ public class ReservationService {
 		return dao.reservation(vo);
 	}
 	
-	public ReservationVO reservationInfo(String memID) {
+	public List<ReservationVO> reservationInfo(String memID) {
 		return dao.reservationInfo(memID);
 	}
 
-	public int reservationDelete(String memID) {
-		return dao.resrvationCancle(memID);
+	public int reservationDelete(List<ReservationVO> list,int num) {
+		if(num<0) {
+			return num;
+		}
+		else {
+		return dao.resrvationCancle(list.get(num).getrNo());
+		}
 	}
 	
 	

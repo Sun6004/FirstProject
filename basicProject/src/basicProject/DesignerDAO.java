@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -22,6 +23,8 @@ public class DesignerDAO {
 	private Connection connection = null;
 	private Statement statement = null;
 	private ResultSet resultSet = null;
+	private SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd");
+	
 
 	public List<DesignerVO> allDesigner() {
 		List<DesignerVO> list = new ArrayList<>();
@@ -43,10 +46,10 @@ public class DesignerDAO {
 			while (resultSet.next()) {
 				String dsiNo = resultSet.getString("dsi_no");
 				String dsiName = resultSet.getString("dsi_name");
-				String dsiBir = resultSet.getString("dsi_bir");
+				String dsiBir = String.valueOf(dateFormat.format(resultSet.getDate("dsi_bir")));
 				String dsiPh = resultSet.getString("dsi_ph");
 				String dsiPosition = resultSet.getString("dsi_posi");
-				String hireDate = resultSet.getString("hire_date");
+				String hireDate = String.valueOf(dateFormat.format(resultSet.getDate("hire_date")));
 				list.add(new DesignerVO(dsiNo, dsiName, dsiBir, dsiPh, dsiPosition,hireDate));
 			}
 		} catch (Exception e) {

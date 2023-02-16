@@ -15,11 +15,11 @@ public class MemberVO {
 	}
 
 	// 생성자
-	public MemberVO(String memId, String memPw, String memName) {
+	public MemberVO(String memId, String memPw, String memPh) {
 		super();
 		this.memId = memId;
 		this.memPw = memPw;
-		this.memName = memName;
+		this.memPh = memPh;
 	}
 
 	public MemberVO(String memId, String memPw, String memName, String memBir) {
@@ -82,7 +82,7 @@ public class MemberVO {
 
 	@Override
 	public String toString() {
-		return String.format("%s\t%s\t%s\t%s\t%s\t", memId,memPw,memName,memBir,memPh);
+		return String.format("   %s\t%s\t\t%s\t\t%s\t%s", memId,memPw,memName,memBir,memPh);
 	}
 	
 
